@@ -37,7 +37,6 @@
 
 namespace edm {
   class ProductHolderIndexHelper;
-  class ConsumesCollector;
   
   class EDConsumerBase
   {
@@ -66,9 +65,6 @@ namespace edm {
     void labelsForToken(EDGetToken iToken, Labels& oLabels) const;
     
   protected:
-    friend class ConsumesCollector;
-    ///Use a ConsumesCollector to gather consumes information from helper functions
-    ConsumesCollector consumesCollector();
     
     template <typename ProductType, BranchType B=InEvent>
     EDGetTokenT<ProductType> consumes(edm::InputTag const& tag) {

@@ -18,7 +18,6 @@
 // user include files
 #include <cppunit/extensions/HelperMacros.h>
 #include "FWCore/Framework/interface/EDConsumerBase.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/TypeToGet.h"
@@ -111,22 +110,8 @@ namespace {
     
     std::vector<edm::EDGetToken> m_tokens;  
   };
-  
-  class IntsConsumesCollectorConsumer : public edm::EDConsumerBase {
-  public:
-    IntsConsumesCollectorConsumer(std::vector<edm::InputTag> const& iTags) {
-      m_tokens.reserve(iTags.size());
-      edm::ConsumesCollector c{ consumesCollector() };
-      for(auto const& tag : iTags) {
-        m_tokens.push_back(c.consumes<std::vector<int>>(tag));
-      }
-    }
-    
-    std::vector<edm::EDGetTokenT<std::vector<int>>> m_tokens;
-  };
-
 }
-
+  
 void
 TestEDConsumerBase::testRegularType()
 {
@@ -186,29 +171,6 @@ TestEDConsumerBase::testRegularType()
 
   }
   {
-    std::vector<edm::InputTag> vTags={ {"label","instance","process"}, {"labelC","instanceC","processC"} };
-    IntsConsumesCollectorConsumer intConsumer{vTags};
-    intConsumer.updateLookup(edm::InEvent,helper);
-    
-    CPPUNIT_ASSERT(intConsumer.m_tokens[0].index()==0);
-    CPPUNIT_ASSERT(intConsumer.m_tokens[1].index()==1);
-    
-    CPPUNIT_ASSERT(vint_c == intConsumer.indexFrom(intConsumer.m_tokens[1],edm::InEvent,typeID_vint));
-    CPPUNIT_ASSERT(vint_blank == intConsumer.indexFrom(intConsumer.m_tokens[0],edm::InEvent,typeID_vint));
-    
-    std::vector<edm::ProductHolderIndex> indices;
-    intConsumer.itemsToGet(edm::InEvent,indices);
-    
-    CPPUNIT_ASSERT(2 == indices.size());
-    CPPUNIT_ASSERT(indices.end() != std::find(indices.begin(),indices.end(), vint_c));
-    CPPUNIT_ASSERT(indices.end() != std::find(indices.begin(),indices.end(), vint_blank));
-    
-    std::vector<edm::ProductHolderIndex> indicesMay;
-    intConsumer.itemsMayGet(edm::InEvent,indicesMay);
-    CPPUNIT_ASSERT(0 == indicesMay.size());
-    
-  }
-  {
     std::vector<edm::InputTag> vTagsRev={ {"labelC","instanceC","processC"},{"label","instance","process"} };
     IntsConsumer intConsumerRev{vTagsRev};
     intConsumerRev.updateLookup(edm::InEvent,helper);
@@ -230,28 +192,6 @@ TestEDConsumerBase::testRegularType()
     intConsumerRev.itemsMayGet(edm::InEvent,indicesMay);
     CPPUNIT_ASSERT(0 == indicesMay.size());
 }
-  {
-    std::vector<edm::InputTag> vTagsRev={ {"labelC","instanceC","processC"},{"label","instance","process"} };
-    IntsConsumesCollectorConsumer intConsumerRev{vTagsRev};
-    intConsumerRev.updateLookup(edm::InEvent,helper);
-    
-    CPPUNIT_ASSERT(intConsumerRev.m_tokens[0].index()==0);
-    CPPUNIT_ASSERT(intConsumerRev.m_tokens[1].index()==1);
-    
-    CPPUNIT_ASSERT(vint_c == intConsumerRev.indexFrom(intConsumerRev.m_tokens[0],edm::InEvent,typeID_vint));
-    CPPUNIT_ASSERT(vint_blank == intConsumerRev.indexFrom(intConsumerRev.m_tokens[1],edm::InEvent,typeID_vint));
-    
-    std::vector<edm::ProductHolderIndex> indices;
-    intConsumerRev.itemsToGet(edm::InEvent,indices);
-    
-    CPPUNIT_ASSERT(2 == indices.size());
-    CPPUNIT_ASSERT(indices.end() != std::find(indices.begin(),indices.end(), vint_c));
-    CPPUNIT_ASSERT(indices.end() != std::find(indices.begin(),indices.end(), vint_blank));
-    
-    std::vector<edm::ProductHolderIndex> indicesMay;
-    intConsumerRev.itemsMayGet(edm::InEvent,indicesMay);
-    CPPUNIT_ASSERT(0 == indicesMay.size());
-  }
   {
     //test default process
     std::vector<edm::InputTag> vTags={ {"label","instance"}, {"labelC","instanceC","@skipCurrentProcess"} };
