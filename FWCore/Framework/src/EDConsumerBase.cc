@@ -13,11 +13,9 @@
 
 // system include files
 #include <cassert>
-#include <utility>
 
 // user include files
 #include "FWCore/Framework/interface/EDConsumerBase.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/Likely.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Provenance/interface/ProductHolderIndexHelper.h"
@@ -63,12 +61,6 @@ EDConsumerBase::~EDConsumerBase()
 //
 // member functions
 //
-ConsumesCollector
-EDConsumerBase::consumesCollector() {
-  ConsumesCollector c{this};
-  return std::move(c);
-}
-
 
 unsigned int
 EDConsumerBase::recordConsumes(BranchType iBranch, TypeToGet const& iType, edm::InputTag const& iTag, bool iAlwaysGets) {
